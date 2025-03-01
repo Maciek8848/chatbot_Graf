@@ -40,23 +40,31 @@ char *strdup(const char *s) {
 
 // Function to extract chatbot's message from JSON response
 void extractChatbotResponse(const char *jsonResponse, char *output) {
-    char *start = strstr(jsonResponse, "\"content\": \"");
-    if (start) {
-        start += 11; // Move past "content": "
-        char *end = strchr(start, '\"'); // Find closing quote
-        if (end) {
-            strncpy(output, start, end - start);
-            output[end - start] = '\0';
-            // Convert escaped newlines
-            for (char *p = output; *p; p++) {
-                if (p[0] == '\\' && p[1] == 'n') {
-                    *p = '\n'; memmove(p + 1, p + 2, strlen(p + 2) + 1);
+    // Locate the "message" block
+    char *msgStart = strstr(jsonResponse, "\"message\":");
+    if (msgStart) {
+        // Within the message, find the "content": " key (note the space after colon)
+        char *contentKey = strstr(msgStart, "\"content\": \"");
+        if (contentKey) {
+            contentKey += strlen("\"content\": \""); // Move pointer past the key
+            // Find the closing quote for the content value
+            char *end = strchr(contentKey, '\"');
+            if (end) {
+                size_t len = end - contentKey;
+                strncpy(output, contentKey, len);
+                output[len] = '\0';
+                // Convert escaped newlines ("\n") to actual newlines
+                for (char *p = output; *p; p++) {
+                    if (p[0] == '\\' && p[1] == 'n') {
+                        *p = '\n';
+                        memmove(p + 1, p + 2, strlen(p + 2) + 1);
+                    }
                 }
+                return;
             }
         }
-    } else {
-        strcpy(output, "Error: Could not extract response.");
     }
+    strcpy(output, "Error: Could not extract response.");
 }
 
 
