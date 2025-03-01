@@ -59,6 +59,7 @@ void extractChatbotResponse(const char *jsonResponse, char *output) {
     }
 }
 
+
 // Function to send an HTTP request via a socket and receive the response
 char *sendRequest(const char *jsonPayload) {
     int sock;
@@ -68,13 +69,15 @@ char *sendRequest(const char *jsonPayload) {
 
     // Create socket
     sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == -1) {
-        perror("Could not create socket");
+    if (sock == INVALID_SOCKET) {
+        printf("Could not create socket\n");
         return NULL;
     }
 
     server.sin_family = AF_INET;
     server.sin_port = htons(SERVER_PORT);
+
+    // Use inet_addr() instead of InetPton()
     server.sin_addr.s_addr = inet_addr(SERVER_IP);
     if (server.sin_addr.s_addr == INADDR_NONE) {
         printf("Invalid address\n");
@@ -84,7 +87,7 @@ char *sendRequest(const char *jsonPayload) {
 
     // Connect to LM Studio API server
     if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0) {
-        perror("Connection failed");
+        printf("Connection failed\n");
         closesocket(sock);
         return NULL;
     }
@@ -101,7 +104,7 @@ char *sendRequest(const char *jsonPayload) {
 
     // Send request
     if (send(sock, request, strlen(request), 0) < 0) {
-        perror("Send failed");
+        printf("Send failed\n");
         closesocket(sock);
         return NULL;
     }
@@ -109,7 +112,7 @@ char *sendRequest(const char *jsonPayload) {
     // Receive response
     int bytesRead = recv(sock, response, sizeof(response) - 1, 0);
     if (bytesRead < 0) {
-        perror("Receive failed");
+        printf("Receive failed\n");
         closesocket(sock);
         return NULL;
     }
@@ -118,6 +121,7 @@ char *sendRequest(const char *jsonPayload) {
     closesocket(sock);
     return response;
 }
+
 
 int main() {
 
