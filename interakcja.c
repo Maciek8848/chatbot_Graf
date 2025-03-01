@@ -2,17 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>     // For close()
-#include <arpa/inet.h>  // For socket(), connect(), send(), recv()
+#include <winsock2.h>  // Windows sockets
+#include <ws2tcpip.h>  // Extra functions for network communication
 
-#ifdef _WIN32
-    #include <winsock2.h>  // Windows sockets
-    #include <ws2tcpip.h>  // Extra functions for network communication
-    #pragma comment(lib, "ws2_32.lib")  // Link with Winsock library
-#else
-    #include <arpa/inet.h>  // For socket(), connect(), send(), recv() on Linux/Mac
-    #include <sys/socket.h>
-    #include <unistd.h>      // For close()
-#endif
+#pragma comment(lib, "ws2_32.lib")  // Link with Winsock library
+
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 1234
@@ -33,6 +27,15 @@ void escapeJson(const char *input, char *output) {
         }
     }
     output[j] = '\0';
+}
+
+char *strdup(const char *s) {
+    size_t len = strlen(s) + 1;  // +1 for null terminator
+    char *copy = malloc(len);
+    if (copy) {
+        memcpy(copy, s, len);
+    }
+    return copy;
 }
 
 // Function to extract chatbot's message from JSON response
@@ -72,16 +75,17 @@ char *sendRequest(const char *jsonPayload) {
 
     server.sin_family = AF_INET;
     server.sin_port = htons(SERVER_PORT);
-    if (inet_pton(AF_INET, SERVER_IP, &server.sin_addr) <= 0) {
-        perror("Invalid address");
-        close(sock);
+    server.sin_addr.s_addr = inet_addr(SERVER_IP);
+    if (server.sin_addr.s_addr == INADDR_NONE) {
+        printf("Invalid address\n");
+        closesocket(sock);
         return NULL;
     }
 
     // Connect to LM Studio API server
     if (connect(sock, (struct sockaddr *)&server, sizeof(server)) < 0) {
         perror("Connection failed");
-        close(sock);
+        closesocket(sock);
         return NULL;
     }
 
@@ -98,7 +102,7 @@ char *sendRequest(const char *jsonPayload) {
     // Send request
     if (send(sock, request, strlen(request), 0) < 0) {
         perror("Send failed");
-        close(sock);
+        closesocket(sock);
         return NULL;
     }
 
@@ -106,30 +110,22 @@ char *sendRequest(const char *jsonPayload) {
     int bytesRead = recv(sock, response, sizeof(response) - 1, 0);
     if (bytesRead < 0) {
         perror("Receive failed");
-        close(sock);
+        closesocket(sock);
         return NULL;
     }
     response[bytesRead] = '\0'; // Null-terminate response
 
-    close(sock);
+    closesocket(sock);
     return response;
 }
 
 int main() {
 
-    #ifdef _WIN32
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
         printf("WSAStartup failed!\n");
         return 1;
     }
-    #endif
-
-      // Your networking code (socket creation, connection, etc.)
-
-    #ifdef _WIN32
-        WSACleanup(); // Cleanup Winsock on Windows
-    #endif
 
     char userInput[BUFFER_SIZE], escapedInput[BUFFER_SIZE], chatbotReply[BUFFER_SIZE];
     char *messages[MAX_HISTORY];
@@ -177,6 +173,8 @@ int main() {
             printf("Error: No response from chatbot.\n");
         }
     }
+
+    WSACleanup(); // Cleanup Winsock on Windows
 
     // Free allocated memory
     for (int i = 0; i < messageCount; i++) {
