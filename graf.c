@@ -64,15 +64,82 @@ int isValidNumber(const char *str) {
     return 1;
 }
 
-int main(int argc, char *argv[]) {
-    if (argc < 3) {
-        printf("Uzycie: %s <liczba_wierzcholkow> <liczba_krawedzi> [src1 dest1 src2 dest2 ...]\n", argv[0]);
-        return 1;
+void generateRandomGraph(Graph *graph) {
+    srand(time(NULL));
+    graph->edges = 0;
+    for (int i = 0; i < graph->vertices; i++) {
+        int edges = rand() % (graph->vertices - 1) + 1;
+        for (int j = 0; j < edges; j++) {
+            int dest = rand() % graph->vertices;
+            if (dest != i) {
+                addEdge(graph, i, dest);
+            }
+        }
     }
+}
+
+
+void interactiveMode() {
+
+    Graph graph;
+    graph.edges = 0;
+    char input[50];
+    printf("Podaj liczbe wierzcholkow: ");
+    scanf("%s", input);
+
+    if (!isValidNumber(input)) {
+        printf("[!] ERROR: niepoprawna liczba wierzcholkow.\n");
+        return;
+    }
+
+    graph.vertices = atoi(input);
+    printf("Czy graf ma byc losowy? (tak/nie): ");
+    scanf("%s", input);
+
+    if (strcmp(input, "tak") == 0 || strcmp(input, "t") == 0) {
+
+        generateRandomGraph( & graph);
+
+    } else {
+        printf("Podaj liczbe krawedzi: ");
+        scanf("%s", input);
+
+        if (!isValidNumber(input)) {
+
+            printf("[!] ERROR: niepoprawna liczba krawedzi.\n");
+            return;
+        }
+        graph.edges = atoi(input);
+
+        for (int i = 0; i < graph.edges; i++) {
+            int src, dest;
+            printf("Podaj krawedz %d (zrodlo i cel): ", i + 1);
+            scanf("%d %d", & src, & dest);
+            if (src >= graph.vertices || dest >= graph.vertices || src < 0 || dest < 0) {
+                printf("[!] ERROR: niepoprawne wartosci krawedzi.\n");
+                return;
+            }
+            addEdge( & graph, src, dest);
+        }
+    }
+    printGraph( & graph);
+
+}
+
+int main(int argc, char *argv[]) {
+    //if (argc > 3) {
+    //    printf("Uzycie: %s <liczba_wierzcholkow> <liczba_krawedzi> [src1 dest1 src2 dest2 ...]\n", argv[0]);
+    //    return 1;
+    // }
 
     Graph graph;
     graph.vertices = atoi(argv[1]);
     graph.edges = 0;
+    
+        if (argc < 2) {
+        interactiveMode();
+        return 7;
+    }
 
     int edges = atoi(argv[2]);
     if (edges <= 0 || edges > MAX_EDGES) {
@@ -95,6 +162,7 @@ int main(int argc, char *argv[]) {
         addEdge(&graph, src, dest);
     }
 
-    printGraph(&graph);
+
+ 
     return 0;
 }
