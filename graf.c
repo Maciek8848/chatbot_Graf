@@ -37,7 +37,7 @@ int compareEdges(const void *a, const void *b) {
 }
 
 void printGraph(Graph *graph) {
-    printf("Graf z %d wierzcholkami i %d krawedziami:\n", graph->vertices, graph->edges);
+    printf("Graf z %d wierzcholkami i %d krawedziami:\n", graph->vertices, graph->edges/2);
     
     qsort(graph->edgeList, graph->edges, sizeof(Edge), compareEdges);
     
@@ -85,6 +85,7 @@ void interactiveMode() {
     Graph graph;
     graph.edges = 0;
     char input[50];
+    
     printf("Podaj liczbe wierzcholkow: ");
     scanf("%s", input);
     if (!isValidNumber(input)) {
@@ -95,7 +96,7 @@ void interactiveMode() {
     
     printf("Czy graf ma byc losowy? (tak/nie): ");
     scanf("%s", input);
-    if (strcmp(input, "tak") == 0 || strcmp(input, "t")==0 ) {
+    if (strcmp(input, "tak") == 0 || strcmp(input, "t") == 0) {
         generateRandomGraph(&graph);
     } else {
         printf("Podaj liczbe krawedzi: ");
@@ -104,8 +105,9 @@ void interactiveMode() {
             printf("[!] ERROR: niepoprawna liczba krawedzi.\n");
             return;
         }
-        graph.edges = atoi(input);
-        for (int i = 0; i < graph.edges; i++) {
+        int numEdges = atoi(input);  // używamy oddzielnej zmiennej dla liczby krawędzi
+        
+        for (int i = 0; i < numEdges; i++) {
             int src, dest;
             printf("Podaj krawedz %d (zrodlo i cel): ", i + 1);
 
@@ -118,7 +120,7 @@ void interactiveMode() {
                 printf("[!] ERROR: niepoprawne wartosci krawedzi.\n");
                 return;
             }
-            //tutaj dodałem, żeby było dwukierunkowe
+            // Dodajemy krawędzie dwukierunkowo
             addEdge(&graph, src, dest);
             addEdge(&graph, dest, src);
         }
