@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <ctype.h>
 
 #define MAX_VERTICES 100
 #define MAX_EDGES 500
@@ -37,7 +36,7 @@ int compareEdges(const void *a, const void *b) {
 }
 
 void printGraph(Graph *graph) {
-    printf("Graf z %d wierzcholkami i %d krawedziami:\n", graph->vertices, graph->edges/2);
+    printf("Graf z %d wierzcholkami i %d krawedziami:\n", graph->vertices, graph->edges);
     
     qsort(graph->edgeList, graph->edges, sizeof(Edge), compareEdges);
     
@@ -50,7 +49,7 @@ void printGraph(Graph *graph) {
             currentSrc = graph->edgeList[i].src;
             printf("%d -> %d", graph->edgeList[i].src, graph->edgeList[i].dest);
         } else {
-            printf(", %d", graph->edgeList[i].dest);
+            printf(" %d", graph->edgeList[i].dest);
         }
     }
     printf("\n");
@@ -65,8 +64,6 @@ void generateRandomGraph(Graph *graph) {
             int dest = rand() % graph->vertices;
             if (dest != i) {
                 addEdge(graph, i, dest);
-                //tutaj dodałem, żeby było dwukierunkowe
-                addEdge(graph, dest, i);
             }
         }
     }
@@ -85,7 +82,6 @@ void interactiveMode() {
     Graph graph;
     graph.edges = 0;
     char input[50];
-    
     printf("Podaj liczbe wierzcholkow: ");
     scanf("%s", input);
     if (!isValidNumber(input)) {
@@ -96,7 +92,7 @@ void interactiveMode() {
     
     printf("Czy graf ma byc losowy? (tak/nie): ");
     scanf("%s", input);
-    if (strcmp(input, "tak") == 0 || strcmp(input, "t") == 0) {
+    if (strcmp(input, "tak") == 0 || strcmp(input, "t")==0 ) {
         generateRandomGraph(&graph);
     } else {
         printf("Podaj liczbe krawedzi: ");
@@ -105,24 +101,16 @@ void interactiveMode() {
             printf("[!] ERROR: niepoprawna liczba krawedzi.\n");
             return;
         }
-        int numEdges = atoi(input);  // używamy oddzielnej zmiennej dla liczby krawędzi
-        
-        for (int i = 0; i < numEdges; i++) {
+        graph.edges = atoi(input);
+        for (int i = 0; i < graph.edges; i++) {
             int src, dest;
             printf("Podaj krawedz %d (zrodlo i cel): ", i + 1);
-
-            if (scanf("%d %d", &src, &dest) != 2) {
-                printf("[!] ERROR: niepoprawna wartosc zrodla lub celu.\n");
-                return;
-            }
-
+            scanf("%d %d", &src, &dest);
             if (src >= graph.vertices || dest >= graph.vertices || src < 0 || dest < 0) {
                 printf("[!] ERROR: niepoprawne wartosci krawedzi.\n");
                 return;
             }
-            // Dodajemy krawędzie dwukierunkowo
             addEdge(&graph, src, dest);
-            addEdge(&graph, dest, src);
         }
     }
     printGraph(&graph);

@@ -16,14 +16,12 @@ int main() {
 
     switch (wybor) {
         case 1:
-            // Uruchomienie pliku wykonywalnego graf.exe (lub ./graf w systemach Unixowych)
-            system("graf.exe");  // Dla Windows
-            // system("./graf"); // Dla Linux/Mac
+            system("graf.exe");  
             break;
         case 2:
-            // Uruchomienie pliku wykonywalnego interakcja.exe (lub ./interakcja w systemach Unixowych)
-            system("interakcja.exe");  // Dla Windows
-            // system("./interakcja"); // Dla Linux/Mac
+
+            system("interakcja.exe");  
+
             break;
         default:
             printf("Niepoprawny wybór.\n");
