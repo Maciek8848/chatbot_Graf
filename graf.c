@@ -18,6 +18,12 @@ typedef struct {
 } Graph;
 
 void addEdge(Graph *graph, int src, int dest) {
+    // czy nowo dodana krawędź już istnieje?
+    for (int i = 0; i < graph->edges; i++) {
+        if (graph->edgeList[i].src == src && graph->edgeList[i].dest == dest) {
+            return; // jak tak, to nie wykonuj dalej funkcji
+        }
+    }
     if (graph->edges < MAX_EDGES) {
         graph->edgeList[graph->edges].src = src;
         graph->edgeList[graph->edges].dest = dest;
