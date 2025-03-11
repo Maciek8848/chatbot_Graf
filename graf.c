@@ -4,8 +4,8 @@
 #include <time.h>
 #include <ctype.h>
 
-#define MAX_VERTICES 100
-#define MAX_EDGES 500
+#define MAX_VERTICES 500
+#define MAX_EDGES 100
 
 typedef struct {
     int src, dest;
@@ -30,6 +30,7 @@ void addEdge(Graph *graph, int src, int dest) {
         graph->edges++;
     } else {
         printf("Maksymalna liczba krawedzi została osiagnieta.\n");
+        return;
     }
 }
 
@@ -66,9 +67,16 @@ void generateRandomGraph(Graph *graph) {
     srand(time(NULL));
     graph->edges = 0;
     for (int i = 0; i < graph->vertices; i++) {
+        if (graph->edges >= MAX_EDGES) {
+            break;
+        }
         int edges = rand() % (graph->vertices - 1) + 1;
         for (int j = 0; j < edges; j++) {
             int dest = rand() % graph->vertices;
+            if (graph->edges >= MAX_EDGES) {
+                printf("Maksymalna liczba krawedzi została osiagnieta. Dalsze krawedzie nie zostana dodane.\n");
+                break;
+            }
             if (dest != i) {
                 addEdge(graph, i, dest);
                 //tutaj dodałem, żeby było dwukierunkowe
@@ -114,6 +122,10 @@ void interactiveMode() {
         int numEdges = atoi(input);  // używamy oddzielnej zmiennej dla liczby krawędzi
         
         for (int i = 0; i < numEdges; i++) {
+            if (graph.edges >= MAX_EDGES) {
+                printf("Maksymalna liczba krawedzi została osiagnieta. Dalsze krawedzie nie zostana dodane.\n");
+                break;
+            }
             int src, dest;
             printf("Podaj krawedz %d (zrodlo i cel): ", i + 1);
 
@@ -136,20 +148,16 @@ void interactiveMode() {
 
 int main(int argc, char *argv[]) {
     if (argc > 1) {
-        if (argc != 3 || !isValidNumber(argv[1]) || (strcmp(argv[2], "losowy") != 0 && strcmp(argv[2], "reczny") != 0)) {
-            printf("Uzycie: %s <liczba_wierzcholkow> <losowy/reczny>\n", argv[0]);
+        if (argc != 2 || !isValidNumber(argv[1])) {
+            printf("Uzycie: %s <liczba_wierzcholkow> \n", argv[0]);
             return 1;
         }
         Graph graph;
         graph.vertices = atoi(argv[1]);
         graph.edges = 0;
-        if (strcmp(argv[2], "losowy") == 0) {
-            generateRandomGraph(&graph);
-        } else {
-            interactiveMode();
-            return 0;
-        }
+        generateRandomGraph(&graph);
         printGraph(&graph);
+        return 0;
     } else {
         interactiveMode();
     }
