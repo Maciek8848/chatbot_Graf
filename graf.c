@@ -3,8 +3,8 @@
 #include <string.h>
 #include <time.h>
 
-#define MAX_VERTICES 100
-#define MAX_EDGES 500
+#define MAX_VERTICES 500
+#define MAX_EDGES 100
 
 typedef struct {
     int src, dest;
@@ -17,12 +17,19 @@ typedef struct {
 } Graph;
 
 void addEdge(Graph *graph, int src, int dest) {
+    // czy nowo dodana krawędź już istnieje?
+    for (int i = 0; i < graph->edges; i++) {
+        if (graph->edgeList[i].src == src && graph->edgeList[i].dest == dest) {
+            return; // jak tak, to nie wykonuj dalej funkcji
+        }
+    }
     if (graph->edges < MAX_EDGES) {
         graph->edgeList[graph->edges].src = src;
         graph->edgeList[graph->edges].dest = dest;
         graph->edges++;
     } else {
         printf("Maksymalna liczba krawedzi została osiagnieta.\n");
+        return;
     }
 }
 
@@ -59,9 +66,16 @@ void generateRandomGraph(Graph *graph) {
     srand(time(NULL));
     graph->edges = 0;
     for (int i = 0; i < graph->vertices; i++) {
+        if (graph->edges >= MAX_EDGES) {
+            break;
+        }
         int edges = rand() % (graph->vertices - 1) + 1;
         for (int j = 0; j < edges; j++) {
             int dest = rand() % graph->vertices;
+            if (graph->edges >= MAX_EDGES) {
+                printf("Maksymalna liczba krawedzi została osiagnieta. Dalsze krawedzie nie zostana dodane.\n");
+                break;
+            }
             if (dest != i) {
                 addEdge(graph, i, dest);
             }
@@ -78,11 +92,45 @@ int isValidNumber(const char *str) {
     return 1;
 }
 
+void saveGraph(Graph *graph, const char *filename) {
+    FILE *fp = fopen(filename, "w");
+    if (fp == NULL) {
+        perror("Error opening file");
+        return;
+    }
+    
+    fprintf(fp, "Graf z %d wierzcholkami i %d krawedziami:\n", graph->vertices, graph->edges / 2);
+    
+    qsort(graph->edgeList, graph->edges, sizeof(Edge), compareEdges);
+    
+    int currentSrc = -1;
+    for (int i = 0; i < graph->edges; i++) {
+        if (graph->edgeList[i].src != currentSrc) {
+            if (currentSrc != -1) {
+                fprintf(fp, "\n");
+            }
+            currentSrc = graph->edgeList[i].src;
+            fprintf(fp, "%d -> %d", graph->edgeList[i].src, graph->edgeList[i].dest);
+        } else {
+            fprintf(fp, ", %d", graph->edgeList[i].dest);
+        }
+    }
+    fprintf(fp, "\n");
+    
+    fclose(fp);
+}
+
 void interactiveMode() {
     Graph graph;
     graph.edges = 0;
     char input[50];
+<<<<<<< HEAD
     printf("Aby wrócić do menu napisz (cofnij)\n Podaj liczbe wierzcholkow: ");
+=======
+    char choice[10];
+    
+    printf("Podaj liczbe wierzcholkow: ");
+>>>>>>> 89a02aae7550aa9c645449e2a5146260b4254d19
     scanf("%s", input);
     if (strcmp(input, "cofnij") == 0 || strcmp(input, "c")==0 ){
         system("program.exe");  
@@ -107,8 +155,18 @@ void interactiveMode() {
             printf("[!] ERROR: niepoprawna liczba krawedzi.\n");
             return;
         }
+<<<<<<< HEAD
         graph.edges = atoi(input);
         for (int i = 0; i < graph.edges; i++) {
+=======
+        int numEdges = atoi(input);  //oddzielna zmienna, do liczby krawedzi
+        
+        for (int i = 0; i < numEdges; i++) {
+            if (graph.edges >= MAX_EDGES) {
+                printf("Maksymalna liczba krawedzi została osiagnieta. Dalsze krawedzie nie zostana dodane.\n");
+                break;
+            }
+>>>>>>> 89a02aae7550aa9c645449e2a5146260b4254d19
             int src, dest;
             printf("Podaj krawedz %d (zrodlo i cel): ", i + 1);
             scanf("%d %d", &src, &dest);
@@ -116,28 +174,40 @@ void interactiveMode() {
                 printf("[!] ERROR: niepoprawne wartosci krawedzi.\n");
                 return;
             }
+<<<<<<< HEAD
+=======
+            //tutaj dodałem, żeby było dwukierunkowe
+>>>>>>> 89a02aae7550aa9c645449e2a5146260b4254d19
             addEdge(&graph, src, dest);
         }
     }
     printGraph(&graph);
+    printf("Czy zapisac graf do pliku? (tak/nie): ");
+    scanf("%s", choice);
+    if (strcmp(choice, "tak") == 0 || strcmp(choice, "t") == 0) {
+    saveGraph(&graph, "graph_output.txt");
+    printf("Graf zapisany do 'graph_output.txt'\n");
+}
+
 }
 
 int main(int argc, char *argv[]) {
-    if (argc > 1) {
-        if (argc != 3 || !isValidNumber(argv[1]) || (strcmp(argv[2], "losowy") != 0 && strcmp(argv[2], "reczny") != 0)) {
-            printf("Uzycie: %s <liczba_wierzcholkow> <losowy/reczny>\n", argv[0]);
+    if (argc > 1) { // podal argumenty
+        if (argc > 3 || !isValidNumber(argv[1])) {
+            printf("Uzycie: %s <liczba_wierzcholkow> [plik_wyjsciowy]\n", argv[0]);
             return 1;
         }
         Graph graph;
         graph.vertices = atoi(argv[1]);
         graph.edges = 0;
-        if (strcmp(argv[2], "losowy") == 0) {
-            generateRandomGraph(&graph);
-        } else {
-            interactiveMode();
-            return 0;
-        }
+        generateRandomGraph(&graph);
         printGraph(&graph);
+
+        if (argc == 3) {
+            saveGraph(&graph, argv[2]);
+            printf("Graf zapisany do '%s'\n", argv[2]);
+        }
+
     } else {
         interactiveMode();
     }
