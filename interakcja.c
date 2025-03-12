@@ -8,7 +8,7 @@
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 1234
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 32768
 
 char* send_http_request(const char *user_input) {
     WSADATA wsa;
@@ -195,15 +195,19 @@ int main() {
     char *response;
     char query[BUFFER_SIZE];
     snprintf(query, BUFFER_SIZE,
-             " %s Wn - Wierzkołek Kn- krawędź, twoja odpowiedź musi być w tym formacie: W1->K3,K5...; W2->1,K3...",
+             " %s Wn - Wierzkołek Kn- krawędź, twoja odpowiedź musi być w tym formacie: W1->K3,K5...; W2->1,K3... przykładowa odpowiedź: 0->1,3; 1->0; 2; 3->0,2 . Wypisz tylko wieszchołki i krawędzie",
              user_input);
     while (1) {
-        printf("Wprowadź swoje zapytanie (lub wpisz 'exit' aby zakończyć): ");
+        printf("Aby wrócić do menu napisz (cofnij)\nWprowadź swoje zapytanie (lub wpisz 'exit' aby zakończyć): ");
         if (!fgets(query, BUFFER_SIZE, stdin)) {
             break;
         }
         query[strcspn(query, "\n")] = '\0'; 
-        if (strcmp(query, "exit") == 0 || strcmp(query, "quit") == 0) {
+        if (strcmp(query, "cofnij") == 0 || strcmp(query, "c")==0 ){
+            system("program.exe");  
+            break;
+        }
+        else if (strcmp(query, "exit") == 0 || strcmp(query, "quit") == 0) {
             break;
         }
 

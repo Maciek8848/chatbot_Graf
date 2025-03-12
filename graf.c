@@ -82,16 +82,22 @@ void interactiveMode() {
     Graph graph;
     graph.edges = 0;
     char input[50];
-    printf("Podaj liczbe wierzcholkow: ");
+    printf("Aby wrócić do menu napisz (cofnij)\n Podaj liczbe wierzcholkow: ");
     scanf("%s", input);
-    if (!isValidNumber(input)) {
-        printf("[!] ERROR: niepoprawna liczba wierzcholkow.\n");
+    if (strcmp(input, "cofnij") == 0 || strcmp(input, "c")==0 ){
+        system("program.exe");  
         return;
     }
+    else if (!isValidNumber(input)) {
+        printf("[!] ERROR: niepoprawna liczba wierzcholkow.\n \n");
+        return;
+    }
+    
     graph.vertices = atoi(input);
     
-    printf("Czy graf ma byc losowy? (tak/nie): ");
+    printf("Czy graf ma byc losowy? (tak/nie):");
     scanf("%s", input);
+   
     if (strcmp(input, "tak") == 0 || strcmp(input, "t")==0 ) {
         generateRandomGraph(&graph);
     } else {
