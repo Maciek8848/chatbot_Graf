@@ -1,0 +1,3 @@
+Graf z 3 wierzcholkami i 1 krawedziami:
+0 -> 1
+1 -> 0

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 
 #define MAX_VERTICES 500
 #define MAX_EDGES 100
@@ -43,10 +44,10 @@ int compareEdges(const void *a, const void *b) {
 }
 
 void printGraph(Graph *graph) {
-    printf("Graf z %d wierzcholkami i %d krawedziami:\n", graph->vertices, graph->edges);
-    
+    printf("Graf z %d wierzcholkami i %d krawedziami:\n", graph->vertices, graph->edges/2);
+
     qsort(graph->edgeList, graph->edges, sizeof(Edge), compareEdges);
-    
+
     int currentSrc = -1;
     for (int i = 0; i < graph->edges; i++) {
         if (graph->edgeList[i].src != currentSrc) {
@@ -56,7 +57,7 @@ void printGraph(Graph *graph) {
             currentSrc = graph->edgeList[i].src;
             printf("%d -> %d", graph->edgeList[i].src, graph->edgeList[i].dest);
         } else {
-            printf(" %d", graph->edgeList[i].dest);
+            printf(", %d", graph->edgeList[i].dest);
         }
     }
     printf("\n");
@@ -78,6 +79,8 @@ void generateRandomGraph(Graph *graph) {
             }
             if (dest != i) {
                 addEdge(graph, i, dest);
+                //tutaj dodałem, żeby było dwukierunkowe
+                addEdge(graph, dest, i);
             }
         }
     }
@@ -124,29 +127,19 @@ void interactiveMode() {
     Graph graph;
     graph.edges = 0;
     char input[50];
-<<<<<<< HEAD
-    printf("Aby wrócić do menu napisz (cofnij)\n Podaj liczbe wierzcholkow: ");
-=======
     char choice[10];
-    
+
     printf("Podaj liczbe wierzcholkow: ");
->>>>>>> 89a02aae7550aa9c645449e2a5146260b4254d19
     scanf("%s", input);
-    if (strcmp(input, "cofnij") == 0 || strcmp(input, "c")==0 ){
-        system("program.exe");  
+    if (!isValidNumber(input)) {
+        printf("[!] ERROR: niepoprawna liczba wierzcholkow.\n");
         return;
     }
-    else if (!isValidNumber(input)) {
-        printf("[!] ERROR: niepoprawna liczba wierzcholkow.\n \n");
-        return;
-    }
-    
     graph.vertices = atoi(input);
-    
-    printf("Czy graf ma byc losowy? (tak/nie):");
+
+    printf("Czy graf ma byc losowy? (tak/nie): ");
     scanf("%s", input);
-   
-    if (strcmp(input, "tak") == 0 || strcmp(input, "t")==0 ) {
+    if (strcmp(input, "tak") == 0 || strcmp(input, "t") == 0) {
         generateRandomGraph(&graph);
     } else {
         printf("Podaj liczbe krawedzi: ");
@@ -155,30 +148,28 @@ void interactiveMode() {
             printf("[!] ERROR: niepoprawna liczba krawedzi.\n");
             return;
         }
-<<<<<<< HEAD
-        graph.edges = atoi(input);
-        for (int i = 0; i < graph.edges; i++) {
-=======
         int numEdges = atoi(input);  //oddzielna zmienna, do liczby krawedzi
-        
+
         for (int i = 0; i < numEdges; i++) {
             if (graph.edges >= MAX_EDGES) {
                 printf("Maksymalna liczba krawedzi została osiagnieta. Dalsze krawedzie nie zostana dodane.\n");
                 break;
             }
->>>>>>> 89a02aae7550aa9c645449e2a5146260b4254d19
             int src, dest;
             printf("Podaj krawedz %d (zrodlo i cel): ", i + 1);
-            scanf("%d %d", &src, &dest);
+
+            if (scanf("%d %d", &src, &dest) != 2) {
+                printf("[!] ERROR: niepoprawna wartosc zrodla lub celu.\n");
+                return;
+            }
+
             if (src >= graph.vertices || dest >= graph.vertices || src < 0 || dest < 0) {
                 printf("[!] ERROR: niepoprawne wartosci krawedzi.\n");
                 return;
             }
-<<<<<<< HEAD
-=======
             //tutaj dodałem, żeby było dwukierunkowe
->>>>>>> 89a02aae7550aa9c645449e2a5146260b4254d19
             addEdge(&graph, src, dest);
+            addEdge(&graph, dest, src);
         }
     }
     printGraph(&graph);

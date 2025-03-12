@@ -44,7 +44,7 @@ char* send_http_request(const char *user_input) {
 
     char json_body[BUFFER_SIZE];
     snprintf(json_body, sizeof(json_body),
-             "{\"model\": \"qwen2.5-7b-instruct-1m\", \"messages\": [{\"role\": \"user\", \"content\": \"%s\"}], \"temperature\": 0.7, \"max_tokens\": 100}",
+             "{\"model\": \"qwen2.5-7b-instruct-1m\", \"messages\": [{\"role\": \"user\", \"content\": \"%s\"}], \"temperature\": 0.1, \"max_tokens\": 400}",
              user_input);
 
     snprintf(request, sizeof(request),
@@ -195,7 +195,7 @@ int main() {
     char *response;
     char query[BUFFER_SIZE];
     snprintf(query, BUFFER_SIZE,
-             " %s Wn - Wierzkołek Kn- krawędź, twoja odpowiedź musi być w tym formacie: W1->K3,K5...; W2->1,K3... przykładowa odpowiedź: 0->1,3; 1->0; 2; 3->0,2 . Wypisz tylko wieszchołki i krawędzie",
+             " %s Krawędzie są kierunkowe dlatego zapisuje się je ze strzałką, przykładowa odpowiedź: 0->1,3; 1->0; 2; 3->0,2 . Wypisz tylko połączenia",
              user_input);
     while (1) {
         printf("Aby wrócić do menu napisz (cofnij)\nWprowadź swoje zapytanie (lub wpisz 'exit' aby zakończyć): ");
