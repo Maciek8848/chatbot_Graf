@@ -7,7 +7,7 @@ int main() {
     printf("Wybierz program do uruchomienia:\n");
     printf("1. graf.c\n");
     printf("2. interakcja.c\n");
-    printf("Wprowadź numer programu (1 lub 2): ");
+    printf("Wprowadz numer programu (1 lub 2): ");
 
     if (scanf("%d", &wybor) != 1) {
         printf("Błąd wczytywania danych.\n");

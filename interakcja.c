@@ -198,7 +198,7 @@ int main() {
              " %s Krawędzie są kierunkowe dlatego zapisuje się je ze strzałką, przykładowa odpowiedź: 0->1,3; 1->0; 2; 3->0,2 . Wypisz tylko połączenia",
              user_input);
     while (1) {
-        printf("Aby wrócić do menu napisz (cofnij)\nWprowadź swoje zapytanie (lub wpisz 'exit' aby zakończyć): ");
+        printf("Aby wrocic do menu napisz (cofnij)\nWprowadz swoje zapytanie (lub wpisz 'exit' aby zakonczyc): ");
         if (!fgets(query, BUFFER_SIZE, stdin)) {
             break;
         }
